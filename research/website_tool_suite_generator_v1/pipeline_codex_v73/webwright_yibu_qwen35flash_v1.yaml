@@ -1,0 +1,67 @@
+model:
+  model_class: webwright_yibu_model.YibuWebWrightModel
+  model_name: qwen3.5-flash
+  openrouter_endpoint: https://yibuapi.com/v1/chat/completions
+  provider_require_parameters: false
+  api_key_file: /shared/hans/.secrets/website_tool_api_key
+  api_log_path: /shared/hans/research/website_tool_suite_generator_v1/iterative_amazon_v1/qwen35flash_api_call.json
+  spend_ledger_path: /shared/hans/webarena/spend_ledger.jsonl
+  max_api_calls: 10
+  max_output_tokens: 4096
+  request_timeout_seconds: 180
+  attach_observation_screenshot: false
+
+environment:
+  environment_class: webwright_safe_environment.SafeToolWorkspaceEnvironment
+  command_timeout_seconds: 120
+  shell: /bin/bash
+  browser_mode: local
+  output_truncation_chars: 20000
+  final_script_preview_chars: 6000
+  recent_files_limit: 50
+  env:
+    PLAYWRIGHT_BROWSERS_PATH: /shared/hans/research/website_tool_suite_generator_v1/.playwright-browsers
+    PAGER: cat
+    MANPAGER: cat
+
+agent:
+  agent_class: default
+  debug_log: true
+  step_limit: 10
+  require_self_reflection_success: false
+  summary_every_n_steps: 0
+  system_template: |
+    You are the code-writing agent inside actual WebWright/CUAWright. Respond
+    with exactly one JSON object containing thought, bash_command, done and
+    final_response. Execute exactly one shell command per turn. Never install
+    packages, invoke interactive GUI tools or access secrets.
+
+    Build one reusable, read-only Python Playwright Chromium CLI tool. Inspect
+    the bounded prior_evidence first. Use its specific DOM evidence instead of
+    rediscovering the page from scratch. By the third turn, write
+    final_script.py. It must accept --query and --output-dir, start a fresh
+    browser context, apply the query through the visible Help search control,
+    and extract only genuine search-result records. Each record must contain a
+    non-empty title, summary (empty is allowed only when the page omits it) and
+    first-party amazon.sg URL. Use the result-specific data attribute shown in
+    prior_evidence, never global links or navigation.
+
+    The output directory must contain screenshots/before.png,
+    screenshots/after.png and final_script_log.txt. Screenshots must use the
+    bounded 1280x1800 viewport, never full_page=True. The first log line begins
+    "step 0 action: params:" and the last begins "final result: " followed by
+    JSON. Fail closed if the visible result stats do not contain the supplied
+    query, if no genuine results exist, or if a returned URL is not amazon.sg.
+
+    Run the default query shipping before declaring done. Declare done only on
+    a later turn after final_script.py ran successfully. Do not use APIs,
+    direct HTTP clients, Selenium, login, purchase, posting, deletion or account
+    mutation.
+  instance_template: |
+    Task: {{ task }}
+    Task ID: {{ task_id }}
+    Start URL: {{ start_url }}
+    Workspace: {{ workspace_dir }}
+
+    Produce a parameterized code tool, not a one-off answer. The independent
+    evaluator will later run a different held query.

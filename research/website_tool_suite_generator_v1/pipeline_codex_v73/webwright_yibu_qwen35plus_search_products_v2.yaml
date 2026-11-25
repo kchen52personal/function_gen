@@ -1,0 +1,70 @@
+model:
+  model_class: webwright_yibu_model.YibuWebWrightModel
+  model_name: qwen3.5-plus
+  openrouter_endpoint: https://yibuapi.com/v1/chat/completions
+  provider_require_parameters: false
+  api_key_file: /shared/hans/.secrets/website_tool_api_key
+  api_log_path: /shared/hans/research/website_tool_suite_generator_v1/iterative_amazon_v1/qwen35plus_search_products_v2_api_call.json
+  spend_ledger_path: /shared/hans/webarena/spend_ledger.jsonl
+  max_api_calls: 1
+  max_output_tokens: 6144
+  request_timeout_seconds: 180
+  attach_observation_screenshot: false
+
+environment:
+  environment_class: webwright_safe_environment.SafeToolWorkspaceEnvironment
+  command_timeout_seconds: 120
+  shell: /bin/bash
+  browser_mode: local
+  output_truncation_chars: 20000
+  final_script_preview_chars: 8000
+  recent_files_limit: 50
+  env:
+    PLAYWRIGHT_BROWSERS_PATH: /shared/hans/research/website_tool_suite_generator_v1/.playwright-browsers
+    PAGER: cat
+    MANPAGER: cat
+
+agent:
+  agent_class: default
+  debug_log: true
+  step_limit: 1
+  require_self_reflection_success: false
+  summary_every_n_steps: 0
+  system_template: |
+    You are the code-writing agent in actual WebWright/CUAWright. Return one
+    JSON object with thought, bash_command, done and final_response. Your one
+    command writes final_script.py. Never read local files or access secrets.
+
+    Write a small async Playwright Chromium CLI and function
+    search_products(query, limit, output_dir). Required flags are --query,
+    --limit and --output-dir. Validate nonempty query and limit 1..20 before
+    browser launch. Open https://www.amazon.sg/ in a fresh 1280x1800 headless
+    context, fill input#twotabsearchtextbox, press Enter and wait for
+    div[data-component-type="s-search-result"][data-asin]. Require the search
+    input value or parsed URL query parameter k to match the requested query.
+
+    Define a bounded screenshot helper that first attempts a normal screenshot
+    and on one failure retries with clip x=0,y=0,width=1280,height=1800. Save
+    output-dir/screenshots/before.png after the home DOM loads and after.png
+    after extraction. Use rows = page.locator('div[data-component-type=
+    "s-search-result"][data-asin]'), await rows.count(), and rows.nth(i).
+    Read ASIN directly with await row.get_attribute("data-asin"). Read title
+    from div[data-cy="title-recipe"] h2 and URL from div[data-cy=
+    "title-recipe"] a[href]. Parenthesize async text before strip. Resolve with
+    urllib.parse.urljoin and require exact https scheme and www.amazon.sg host.
+    Keep complete unique records and require exactly limit records. Records are
+    {asin, title, url}. No price, rating or sort fields.
+
+    Write output-dir/final_script_log.txt. First line starts exactly
+    "step 0 action: params:". Final line starts exactly "final result: " plus
+    compact JSON {query, limit, products} on that same line. Print the same JSON
+    and exit nonzero on violation. No fallback selectors, direct HTTP, API,
+    Selenium, login, cart action, mutation or full-page screenshot.
+  instance_template: |
+    Task: {{ task }}
+    Task ID: {{ task_id }}
+    Start URL: {{ start_url }}
+    Workspace: {{ workspace_dir }}
+
+    Write final_script.py now. A deterministic runner will execute default and
+    held cases after this single generation turn.

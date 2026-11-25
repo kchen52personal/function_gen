@@ -1,0 +1,36 @@
+{
+  "tasks": [
+    {
+      "task_id": "task_007",
+      "parameters": {
+        "query": "protein folding",
+        "limit": 3
+      },
+      "intent": "Find the first 3 papers on arXiv that match the search query \"protein folding\" and provide their titles and abstract links."
+    },
+    {
+      "task_id": "task_012",
+      "parameters": {
+        "query": "reinforcement learning",
+        "limit": 5
+      },
+      "intent": "Find the first 5 papers on arXiv that match the search query \"reinforcement learning\" and provide their titles and abstract links."
+    },
+    {
+      "task_id": "task_009",
+      "parameters": {
+        "query": "deep learning",
+        "limit": 5
+      },
+      "intent": "Find the first 5 papers on arXiv that match the search query \"deep learning\" and provide their titles and abstract links."
+    },
+    {
+      "task_id": "task_004",
+      "parameters": {
+        "query": "neural networks",
+        "limit": 4
+      },
+      "intent": "Find the first 4 papers on arXiv that match the search query \"neural networks\" and provide their titles and abstract links."
+    }
+  ]
+}

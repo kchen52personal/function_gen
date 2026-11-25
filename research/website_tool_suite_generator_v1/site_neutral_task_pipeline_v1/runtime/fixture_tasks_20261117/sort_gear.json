@@ -1,0 +1,5 @@
+{
+  "task": "On this local demonstration storefront, show the Gear category sorted by price from low to high. Report the visible product names and prices in that order. Save a screenshot as evidence and submit a reusable browser script. Do not purchase anything.",
+  "success_criteria": ["Navigate to Gear and sort by price from low to high.", "Report visible product names and prices in the displayed order, based on the page.", "Save screenshot evidence and submit a reusable script."],
+  "requested_constraints": ["No purchases or real personal information."]
+}

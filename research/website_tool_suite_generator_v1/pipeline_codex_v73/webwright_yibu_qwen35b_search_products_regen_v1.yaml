@@ -1,0 +1,78 @@
+model:
+  model_class: webwright_yibu_model.YibuWebWrightModel
+  model_name: qwen3.5-35b-a3b
+  openrouter_endpoint: https://yibuapi.com/v1/chat/completions
+  provider_require_parameters: false
+  api_key_file: /shared/hans/.secrets/website_tool_api_key
+  api_log_path: /shared/hans/research/website_tool_suite_generator_v1/iterative_amazon_v1/qwen35b_search_products_regen_v1_api_call.json
+  spend_ledger_path: /shared/hans/webarena/spend_ledger.jsonl
+  max_api_calls: 1
+  max_output_tokens: 8192
+  request_timeout_seconds: 180
+  attach_observation_screenshot: false
+
+environment:
+  environment_class: webwright_safe_environment.SafeToolWorkspaceEnvironment
+  command_timeout_seconds: 120
+  shell: /bin/bash
+  browser_mode: local
+  output_truncation_chars: 24000
+  final_script_preview_chars: 8000
+  recent_files_limit: 50
+  env:
+    PLAYWRIGHT_BROWSERS_PATH: /shared/hans/research/website_tool_suite_generator_v1/.playwright-browsers
+    PAGER: cat
+    MANPAGER: cat
+
+agent:
+  agent_class: default
+  debug_log: true
+  step_limit: 1
+  require_self_reflection_success: false
+  summary_every_n_steps: 0
+  system_template: |
+    You are the code-writing agent in actual WebWright/CUAWright. Return one
+    JSON object with thought, bash_command, done and final_response. Your one
+    command must write final_script.py. Never install software, read local
+    files, or access secrets. Use only the public contract and selectors below.
+
+    Create an argparse CLI with required --query, --sort, --limit and
+    --output-dir and async function search_products. Validate non-empty query,
+    limit 1..20, and sort in relevanceblender, price-asc-rank,
+    price-desc-rank, review-rank, date-desc-rank. Use async_playwright,
+    p.chromium.launch(headless=True), fresh context viewport 1280x1800.
+
+    Start at https://www.amazon.sg/. Save output-dir/screenshots/before.png.
+    Fill input#twotabsearchtextbox and press Enter. Wait for
+    div[data-component-type="s-search-result"][data-asin]. If sort is not
+    relevanceblender, select it in select#s-result-sort-select and wait for
+    results. Require the selected value to equal sort and the search URL or
+    input to reflect query.
+
+    Use Locator methods consistently: rows = page.locator(selector), await
+    rows.count(), row = rows.nth(i), and await every async method. Within each
+    row extract non-empty data-asin; title from
+    div[data-cy="title-recipe"] h2; URL from
+    div[data-cy="title-recipe"] a[href], resolving relative URLs to
+    https://www.amazon.sg; price from
+    div[data-cy="price-recipe"] span.a-price span.a-offscreen; and rating from
+    div[data-cy="reviews-block"] span.a-icon-alt. Before inner_text or
+    get_attribute on optional child locators, require await locator.count() > 0.
+    Parse the first decimal rating and require 0..5. Skip incomplete records,
+    stop at limit, and fail if fewer than limit complete records remain.
+
+    Save bounded after.png. Write final_script_log.txt whose first line begins
+    "step 0 action: params:" and last line begins "final result: " followed by
+    JSON {query, sort, limit, products}; every product has asin, title, price,
+    rating and url. Fail nonzero on contract violation. Validate parsed output
+    URLs have https scheme and hostname www.amazon.sg. No broad fallback
+    selectors, full-page screenshots, direct HTTP, API, Selenium, login, cart
+    actions or mutation.
+  instance_template: |
+    Task: {{ task }}
+    Task ID: {{ task_id }}
+    Start URL: {{ start_url }}
+    Workspace: {{ workspace_dir }}
+
+    Write the reusable final_script.py now. Deterministic stages will execute
+    default and held cases after this one generation turn.

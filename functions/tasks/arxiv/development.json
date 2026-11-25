@@ -1,0 +1,68 @@
+{
+  "tasks": [
+    {
+      "task_id": "task_003",
+      "parameters": {
+        "query": "general relativity",
+        "limit": 2
+      },
+      "intent": "Find the first 2 papers on arXiv that match the search query \"general relativity\" and provide their titles and abstract links."
+    },
+    {
+      "task_id": "task_006",
+      "parameters": {
+        "query": "blockchain technology",
+        "limit": 5
+      },
+      "intent": "Find the first 5 papers on arXiv that match the search query \"blockchain technology\" and provide their titles and abstract links."
+    },
+    {
+      "task_id": "task_011",
+      "parameters": {
+        "query": "optimization algorithms",
+        "limit": 1
+      },
+      "intent": "Find the first 1 papers on arXiv that match the search query \"optimization algorithms\" and provide their titles and abstract links."
+    },
+    {
+      "task_id": "task_008",
+      "parameters": {
+        "query": "cryptocurrency",
+        "limit": 2
+      },
+      "intent": "Find the first 2 papers on arXiv that match the search query \"cryptocurrency\" and provide their titles and abstract links."
+    },
+    {
+      "task_id": "task_002",
+      "parameters": {
+        "query": "machine learning",
+        "limit": 5
+      },
+      "intent": "Find the first 5 papers on arXiv that match the search query \"machine learning\" and provide their titles and abstract links."
+    },
+    {
+      "task_id": "task_001",
+      "parameters": {
+        "query": "quantum computing",
+        "limit": 3
+      },
+      "intent": "Find the first 3 papers on arXiv that match the search query \"quantum computing\" and provide their titles and abstract links."
+    },
+    {
+      "task_id": "task_005",
+      "parameters": {
+        "query": "climate change",
+        "limit": 1
+      },
+      "intent": "Find the first 1 papers on arXiv that match the search query \"climate change\" and provide their titles and abstract links."
+    },
+    {
+      "task_id": "task_010",
+      "parameters": {
+        "query": "astrophysics",
+        "limit": 4
+      },
+      "intent": "Find the first 4 papers on arXiv that match the search query \"astrophysics\" and provide their titles and abstract links."
+    }
+  ]
+}

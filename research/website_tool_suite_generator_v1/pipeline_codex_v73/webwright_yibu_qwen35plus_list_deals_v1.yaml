@@ -1,0 +1,72 @@
+model:
+  model_class: webwright_yibu_model.YibuWebWrightModel
+  model_name: qwen3.5-plus
+  openrouter_endpoint: https://yibuapi.com/v1/chat/completions
+  provider_require_parameters: false
+  api_key_file: /shared/hans/.secrets/website_tool_api_key
+  api_log_path: /shared/hans/research/website_tool_suite_generator_v1/iterative_amazon_v1/qwen35plus_list_deals_v1_api_call.json
+  spend_ledger_path: /shared/hans/webarena/spend_ledger.jsonl
+  max_api_calls: 1
+  max_output_tokens: 6144
+  request_timeout_seconds: 180
+  attach_observation_screenshot: false
+
+environment:
+  environment_class: webwright_safe_environment.SafeToolWorkspaceEnvironment
+  command_timeout_seconds: 120
+  shell: /bin/bash
+  browser_mode: local
+  output_truncation_chars: 20000
+  final_script_preview_chars: 8000
+  recent_files_limit: 50
+  env:
+    PLAYWRIGHT_BROWSERS_PATH: /shared/hans/research/website_tool_suite_generator_v1/.playwright-browsers
+    PAGER: cat
+    MANPAGER: cat
+
+agent:
+  agent_class: default
+  debug_log: true
+  step_limit: 1
+  require_self_reflection_success: false
+  summary_every_n_steps: 0
+  system_template: |
+    You are the code-writing agent in actual WebWright/CUAWright. Return one
+    JSON object with thought, bash_command, done and final_response. Your one
+    command writes final_script.py. Never read local files or access secrets.
+
+    Write an async Playwright Chromium CLI and function
+    list_deals(category, limit, output_dir). Required flags: --category,
+    --limit, --output-dir. Allow trending, books, electronics, toys, beauty,
+    home-and-kitchen. Require limit 1..20. Map trending to selector
+    button[data-testid="filter-bubble-trending-bubble"] and every other value
+    to button[data-testid="filter-bubble-deals-collection-{category}"]. Visit
+    https://www.amazon.sg/deals in a fresh 1280x1800 headless context. Click the
+    mapped button, require aria-pressed="true", and wait for
+    [data-testid="virtuoso-item-list"] [data-testid="product-card"][data-asin].
+
+    Implement the same bounded one-retry screenshot helper used for search:
+    normal viewport screenshot, then one clipped 1280x1800 retry. Save
+    screenshots/before.png before clicking and after.png after extraction.
+    Use Locator count/nth. For each card read ASIN directly from data-asin;
+    title from p[id^="title-"] span.a-truncate-full; URL from the first
+    a[data-testid="product-card-link"][href]; deal price text from
+    [data-testid="price-section"] span.a-price span.a-offscreen. Parse the first
+    S$ numeric amount to a positive float. Resolve URL with urllib.parse.urljoin
+    and require exact https/www.amazon.sg. Keep complete unique records and
+    require exactly limit. Records: {asin,title,deal_price,url}.
+
+    Write final_script_log.txt. First line starts "step 0 action: params:".
+    Final line starts "final result: " followed on the same line by compact
+    JSON {category,limit,deals}. Print the same JSON and exit nonzero on any
+    violation. Validate args before browser launch. No broad fallbacks, direct
+    HTTP, API, Selenium, login, add-to-cart, purchase, mutation or full-page
+    screenshot.
+  instance_template: |
+    Task: {{ task }}
+    Task ID: {{ task_id }}
+    Start URL: {{ start_url }}
+    Workspace: {{ workspace_dir }}
+
+    Write final_script.py now. A deterministic runner will execute default and
+    held cases after this one generation turn.

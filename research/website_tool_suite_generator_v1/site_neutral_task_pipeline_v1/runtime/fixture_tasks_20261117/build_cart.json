@@ -1,0 +1,5 @@
+{
+  "task": "On this local demonstration storefront, add one Tech Fleece Hoodie and one Canvas Tote L to the shopping cart. Open the cart and report the items and displayed subtotal. Save a screenshot as evidence and submit a reusable browser script. Do not check out or enter personal information.",
+  "success_criteria": ["Add exactly one of each requested item to the cart.", "Open the cart and report its contents and displayed subtotal based on the page.", "Save screenshot evidence and submit a reusable script."],
+  "requested_constraints": ["Do not check out, purchase, or enter personal information."]
+}
