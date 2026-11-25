@@ -1,4 +1,6 @@
-# Website Function Generator — research snapshot
+# function_gen
+
+Website Function Generator — research snapshot.
 
 This repository contains an experimental pipeline for generating one
 parameterized Playwright function from a website and a human-selected
